@@ -130,6 +130,8 @@ def train(
         print("gradient_accumulation_steps: ", gradient_accumulation_steps)
 
     # Check if parameter passed or if set within environ
+
+    wandb_project = ''
     use_wandb = len(wandb_project) > 0 or (
         "WANDB_PROJECT" in os.environ and len(os.environ["WANDB_PROJECT"]) > 0
     )
@@ -283,7 +285,7 @@ def train(
             output_dir=output_dir,
             save_total_limit=2,
             load_best_model_at_end=True if val_set_size > 0 else False,
-            ddp_find_unused_parameters=False if ddp else None,
+            ddp_find_unused_parameters=False if ddp else False,
             group_by_length=group_by_length,
             report_to="wandb" if use_wandb else None,
             run_name=wandb_run_name if use_wandb else None,
@@ -308,5 +310,5 @@ def train(
 
 
 if __name__ == "__main__":
-    torch.cuda.empty_cache() 
+    torch.cuda.empty_cache()
     fire.Fire(train)
