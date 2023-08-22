@@ -131,7 +131,8 @@ def train(
 
     # Check if parameter passed or if set within environ
 
-    wandb_project = ''
+    if len(wandb_run_name) == 0:
+        wandb_project = ''
     use_wandb = len(wandb_project) > 0 or (
         "WANDB_PROJECT" in os.environ and len(os.environ["WANDB_PROJECT"]) > 0
     )
