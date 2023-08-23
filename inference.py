@@ -26,7 +26,7 @@ except:  # noqa: E722
 
 
 def main(
-    load_8bit: bool = False,
+    load_8bit: bool = True,
     base_model: str = "../llama30B_hf",
     lora_weights: str = "",
     prompt_template: str = "alpaca",
@@ -41,13 +41,14 @@ def main(
         model = LlamaForCausalLM.from_pretrained(
             base_model,
             load_in_8bit=load_8bit,
-            torch_dtype=torch.float16,
+            torch_dtype=torch.bfloat16,
             device_map="auto",
         )
-        model = PeftModel.from_pretrained(
-            model,
-            lora_weights,
-            torch_dtype=torch.float16,
+        if lora_weights is not None and len(lora_weights) > 0 and lora_weights != 'null':
+            model = PeftModel.from_pretrained(
+                model,
+                lora_weights,
+                torch_dtype=torch.bfloat16,
         )
     elif device == "mps":
         model = LlamaForCausalLM.from_pretrained(
@@ -98,7 +99,7 @@ def main(
         start_time = time.time()
     
         prompts = [prompter.generate_prompt(instruction, input) for instruction, input in zip(instruction_batch, input_batch)]
-        batch_results = evaluate(prompter, prompts, model, tokenizer)
+        batch_results = evaluate(i // max_batch_size, prompter, prompts, model, tokenizer)
             
         results.extend(batch_results)
         print(f"Finished processing batch {i // max_batch_size + 1}. Time taken: {time.time() - start_time:.2f} seconds")
@@ -106,10 +107,10 @@ def main(
     df["model_output"] = results
     df.to_csv(output_csv_path, index=False)
 
-def evaluate(prompter, prompts, model, tokenizer):
+def evaluate(batch_id, prompter, prompts, model, tokenizer):
     batch_outputs = []
 
-    for prompt in prompts:
+    for prompt_id, prompt in enumerate(prompts):
         input_ids = tokenizer.encode(prompt, return_tensors="pt").to(device)
 
         generation_output = model.generate(input_ids=input_ids, num_beams=1, num_return_sequences=1,
@@ -117,6 +118,7 @@ def evaluate(prompter, prompts, model, tokenizer):
         
         output = tokenizer.decode(generation_output[0], skip_special_tokens=True)
         resp = prompter.get_response(output)
+        print(f'{batch_id} {prompt_id}. +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
         print(resp)
         batch_outputs.append(resp)
 

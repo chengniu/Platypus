@@ -85,7 +85,9 @@ def train(
     wandb_watch: str = "",  # options: false | gradients | all
     wandb_log_model: str = "",  # options: false | true
     resume_from_checkpoint: str = None,  # either training checkpoint or final adapter
-    prompt_template_name: str = "alpaca"
+    prompt_template_name: str = "alpaca",
+    gradient_checkpointing: bool = False,
+    load_in_8bit: bool = True
 ):
     if int(os.environ.get("LOCAL_RANK", 0)) == 0:
         print(
@@ -113,6 +115,8 @@ def train(
             f"wandb_watch: {wandb_watch}\n"
             f"wandb_log_model: {wandb_log_model}\n"
             f"resume_from_checkpoint: {resume_from_checkpoint or False}\n"
+            f"gradient_checkpointing: {gradient_checkpointing}\n"
+            f"load_in_8bit: {load_in_8bit}\n"
         )
     assert (
         base_model
@@ -146,7 +150,7 @@ def train(
 
     model = LlamaForCausalLM.from_pretrained(
         base_model,
-        load_in_8bit=False,
+        load_in_8bit=load_in_8bit,
         torch_dtype=torch.bfloat16,
         device_map=device_map)
 
@@ -297,6 +301,7 @@ def train(
             group_by_length=group_by_length,
             report_to="wandb" if use_wandb else None,
             run_name=wandb_run_name if use_wandb else None,
+            gradient_checkpointing=gradient_checkpointing,
         ),
         data_collator=transformers.DataCollatorForSeq2Seq(
             tokenizer, pad_to_multiple_of=8, return_tensors="pt", padding=True
