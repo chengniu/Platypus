@@ -1,7 +1,15 @@
-torchrun --nproc_per_node=2 --master_port=1234 finetune.py \
-    --base_model meta-llama/Llama-2-13b-hf \
-    --data-path garage-bAInd/Open-Platypus \
-    --output_dir ./llama2-platypus-13b \
+set -x #echo on
+set -e #stop when any command fails
+
+export PYTHONPATH=$PYTHONPATH:/home/dayong/chengniu/Platypus
+
+export CUDA_VISIBLE_DEVICES=0
+
+
+torchrun --nproc_per_node=1 --master_port=1234 finetune.py \
+    --base_model /home/dayong/chengniu/model/llama2_7B_hf \
+    --data-path /home/dayong/chengniu/data/train-00000-of-00001-5b226e5ae97bf4b1.json \
+    --output_dir /home/dayong/chengniu/model/llama2-platypus-7b-lora \
     --batch_size 16 \
     --micro_batch_size 1 \
     --num_epochs 1 \

@@ -1,4 +1,4 @@
-bitsandbytes==0.37.2
+bitsandbytes
 accelerate==0.21.0
 appdirs
 loralib

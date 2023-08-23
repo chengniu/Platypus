@@ -146,8 +146,8 @@ def train(
 
     model = LlamaForCausalLM.from_pretrained(
         base_model,
-        load_in_8bit=True,
-        torch_dtype=torch.float16,
+        load_in_8bit=False,
+        torch_dtype=torch.bfloat16,
         device_map=device_map)
 
     tokenizer = LlamaTokenizer.from_pretrained(base_model)
@@ -264,6 +264,12 @@ def train(
         model.is_parallelizable = True
         model.model_parallel = True
 
+    if '7B' in base_model:
+        fp16 = False
+        bf16 = True
+    else:
+        fp16 = True
+        bf16 = False
     trainer = transformers.Trainer(
         model=model,
         train_dataset=train_data,
@@ -275,7 +281,8 @@ def train(
             num_train_epochs=num_epochs,
             learning_rate=learning_rate,
             # dataloader_num_workers=16,
-            fp16=True,
+            fp16=fp16,
+            bf16=bf16,
             logging_steps=1,
             optim="adamw_torch",
             evaluation_strategy="steps" if val_set_size > 0 else "no",

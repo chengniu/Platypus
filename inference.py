@@ -2,7 +2,7 @@ import os
 import sys
 import time
 import pandas as pd
-
+import json
 import fire
 import torch
 import transformers
@@ -78,7 +78,14 @@ def main(
     if torch.__version__ >= "2" and sys.platform != "win32":
         model = torch.compile(model)
 
-    df = pd.read_csv(csv_path)
+    if csv_path.endswith("json") or csv_path.endswith('jsonl'):
+        lines = []
+        with open(csv_path) as f:
+            lines = f.read().splitlines()
+        line_dicts = [json.loads(line) for line in lines]
+        df = pd.DataFrame(line_dicts)
+    else:
+        df = pd.read_csv(csv_path)
     instructions = df["instruction"].tolist()
     inputs = df["input"].tolist()
 
@@ -90,7 +97,7 @@ def main(
         print(f"Processing batch {i // max_batch_size + 1} of {len(instructions) // max_batch_size + 1}...")
         start_time = time.time()
     
-        prompts = [prompter.generate_prompt(instruction, None) for instruction, input in zip(instruction_batch, input_batch)]
+        prompts = [prompter.generate_prompt(instruction, input) for instruction, input in zip(instruction_batch, input_batch)]
         batch_results = evaluate(prompter, prompts, model, tokenizer)
             
         results.extend(batch_results)

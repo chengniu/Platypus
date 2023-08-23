@@ -1,4 +1,4 @@
 python merge.py \
-    --base_model_name_or_path Open-Orca/OpenOrcaxOpenChat-Preview2-13B \
-    --peft_model_path ./platypus-lora \
-    --output_dir ./OpenOrca-Platypus2-13B
+    --base_model_name_or_path /home/dayong/chengniu/model/llama2_7B_hf \
+    --peft_model_path /home/dayong/chengniu/model/llama2-platypus-7b-lora \
+    --output_dir /home/dayong/chengniu/model/llama2-platypus-7b
