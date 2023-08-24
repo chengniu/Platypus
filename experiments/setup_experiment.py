@@ -42,9 +42,9 @@ def create_finetune_sh(fine_tune_name, env_config, finetune_args, finetune_confi
         f.write('\n')
         f.write(f'cd {platypus_src_path}\n')
         f.write('\n')
-        f.write("python merge.py \\n")
+        f.write("python merge.py \\\n")
         f.write(f"--base_model_name_or_path {finetune_config['--base_model']} \\\n")
-        f.write(f" --peft_model_path {finetune_config['--output_dir']} \\\n")
+        f.write(f"--peft_model_path {finetune_config['--output_dir']} \\\n")
         f.write(f"--output_dir {finetune_config['--output_dir']}_merged \\\n")
         f.write('\n')
         f.write(f'cd {platypus_src_path}/experiments/{fine_tune_name}\n')
@@ -52,7 +52,7 @@ def create_finetune_sh(fine_tune_name, env_config, finetune_args, finetune_confi
 
 def create_evaluation_sh(fine_tune_name, env_config, finetune_args, finetune_config, platypus_src_path, lm_evaluation_src_path):
     model_path = f"{finetune_config['--output_dir']}_merged"
-    result_path = env_config['--result_path']
+    result_path = f"{env_config['--result_path']}"
     file_name = os.path.join(lm_evaluation_src_path, f"{platypus_src_path}/experiments/{fine_tune_name}/evaluate_{fine_tune_name}.sh")
     with open(file_name, "w", encoding="UTF8") as f:
         f.write(f"set -x\n")
@@ -64,13 +64,13 @@ def create_evaluation_sh(fine_tune_name, env_config, finetune_args, finetune_con
         f.write('\n')
         f.write(f'cd {lm_evaluation_src_path}\n')
         f.write('\n')
-        f.write(f'python main.py --model hf-causal-experimental --model_args pretrained={model_path},use_accelerate=True,dtype="bfloat16" --tasks arc_challenge --batch_size 2 --no_cache --write_out --output_path {result_path}/{fine_tune_name}/arc_challenge_25shot.json --device cuda --num_fewshot 25\n')
+        f.write(f'python main.py --model hf-causal-experimental --model_args pretrained={model_path},use_accelerate=True,dtype="bfloat16" --tasks arc_challenge --batch_size 2 --no_cache --write_out --output_path {result_path}/{fine_tune_name}_merged/arc_challenge_25shot.json --device cuda --num_fewshot 25\n')
         f.write('\n')
-        f.write(f'python main.py --model hf-causal-experimental --model_args pretrained={model_path},use_accelerate=True,dtype="bfloat16" --tasks hellaswag --batch_size 2 --no_cache --write_out --output_path {result_path}/{fine_tune_name}/hellaswag_10shot.json --device cuda --num_fewshot 10\n')
+        f.write(f'python main.py --model hf-causal-experimental --model_args pretrained={model_path},use_accelerate=True,dtype="bfloat16" --tasks hellaswag --batch_size 2 --no_cache --write_out --output_path {result_path}/{fine_tune_name}_merged/hellaswag_10shot.json --device cuda --num_fewshot 10\n')
         f.write('\n')
-        f.write(f'python main.py --model hf-causal-experimental --model_args pretrained={model_path},use_accelerate=True,dtype="bfloat16" --tasks hendrycksTest-* --batch_size 2 --no_cache --write_out --output_path {result_path}/{fine_tune_name}/mmlu_5shot.json --device cuda --num_fewshot 5\n')
+        f.write(f'python main.py --model hf-causal-experimental --model_args pretrained={model_path},use_accelerate=True,dtype="bfloat16" --tasks hendrycksTest-* --batch_size 2 --no_cache --write_out --output_path {result_path}/{fine_tune_name}_merged/mmlu_5shot.json --device cuda --num_fewshot 5\n')
         f.write('\n')
-        f.write(f'python main.py --model hf-causal-experimental --model_args pretrained={model_path},use_accelerate=True,dtype="bfloat16" --tasks truthfulqa_mc --batch_size 2 --no_cache --write_out --output_path {result_path}/{fine_tune_name}/truthfulqa_0shot.json --device cuda\n')
+        f.write(f'python main.py --model hf-causal-experimental --model_args pretrained={model_path},use_accelerate=True,dtype="bfloat16" --tasks truthfulqa_mc --batch_size 2 --no_cache --write_out --output_path {result_path}/{fine_tune_name}_merged/truthfulqa_0shot.json --device cuda\n')
         f.write('\n')
         f.write(f'cd {platypus_src_path}/experiments/{fine_tune_name}\n')
 
