@@ -1,3 +1,6 @@
+set env: 
+export PYTHONPATH=$PYTHONPATH:/home/dayong/chengniu/Platypus
+
 # Platypus: Quick, Cheap, and Powerful Refinement of LLMs (https://platypus-llm.github.io)
 
 <p align="center">
