@@ -9,7 +9,7 @@ export CUDA_VISIBLE_DEVICES=0
 torchrun --nproc_per_node=1 --master_port=1234 finetune.py \
     --base_model /home/dayong/chengniu/model/llama2_7B_hf \
     --data-path /home/dayong/chengniu/data/train-00000-of-00001-5b226e5ae97bf4b1.json \
-    --output_dir /home/dayong/chengniu/model/llama2-platypus-7b-lora \
+    --output_dir /home/dayong/chengniu/model/llama2-platypus-7b-lora-json-r32 \
     --batch_size 16 \
     --micro_batch_size 1 \
     --num_epochs 1 \
@@ -25,4 +25,7 @@ torchrun --nproc_per_node=1 --master_port=1234 finetune.py \
     --group_by_length False \
     --prompt_template_name alpaca \
     --lr_scheduler 'cosine' \
-    --warmup_steps 100
+    --warmup_steps 100 \
+    --gradient_checkpointing False \
+    --load_in_8bit True \
+
