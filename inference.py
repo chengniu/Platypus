@@ -158,7 +158,8 @@ def evaluate(batch_id, prompter, prompts, answers, model, tokenizer,
         print(f'{prompt}')
         input_ids = tokenizer.encode(prompt, return_tensors="pt").to(device)
         generation_output = model.generate(input_ids=input_ids, num_beams=1, num_return_sequences=1,
-                                           max_new_tokens=256, temperature=0.15, top_p=0.95)
+                                           max_new_tokens=256, temperature=0.15, top_p=0.95,
+                                           pad_token_id=tokenizer.eos_token_id)
         output = tokenizer.decode(generation_output[0], skip_special_tokens=True)
         resp = prompter.get_response(output)
         print('Response:')
