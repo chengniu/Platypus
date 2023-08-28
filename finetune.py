@@ -210,7 +210,10 @@ def train(
             ]  # TODO: Speed up?
         return tokenized_full_prompt
 
-    model = prepare_model_for_int8_training(model)
+    if load_in_8bit:
+        model = prepare_model_for_int8_training(model)
+    elif gradient_checkpointing:
+        model.enable_input_require_grads()
 
     config = LoraConfig(
         r=lora_r,
